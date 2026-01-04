@@ -1,0 +1,70 @@
+📄 Project Name: RD Group - Financial Management App (Detailed Specification)
+(Is pure text ko copy karke ek PDF ya Text file bana lijiye aur developer ko dijiye)
+1. Introduction & Core Objective
+I need a Flutter + Firebase app for a private financial group ("RD Group"). The app manages monthly contributions, loans, and strict penalties for 22 specific members. My Contact: [Yahan Apna Email ID Dalein] | Phone number available upon request for serious developers.
+
+--------------------------------------------------------------------------------
+2. User Roles & Authentication Logic
+• Login: OTP-based Login (Firebase Auth) [Source: 23].
+• The "Dual Role" Concept (CRITICAL):
+    ◦ Admin (Operator): Users named 'Deepak', 'Rohit Arya', 'Rupesh' [Source: 3, 34].
+    ◦ Member: Everyone else.
+    ◦ Note: Admins are ALSO members. They have their own personal dashboards, pay their own loans, and pay their own monthly ₹500. Do not create separate Admin accounts. Use a role field in the database [Source: 25].
+• Multi-Account Support: A user can have multiple IDs (e.g., Rupesh 01, Rupesh 02) linked to one phone number. They must be able to "Switch Account" from the profile menu [Source: 23, 24].
+
+--------------------------------------------------------------------------------
+3. Navigation Structure
+• Bottom Navigation: Icons ONLY (No Text Labels) [Source: 34].
+• Tabs for MEMBERS: 1. Group Data, 2. Home (Personal), 3. History.
+• Tabs for ADMINS: 1. Group Data, 2. Home (Personal), 3. History, 4. Admin Panel [Source: 25].
+
+--------------------------------------------------------------------------------
+4. Feature Breakdown & Logic
+A. Home Dashboard (Personal View)
+• Data: Show Total Deposit, Lifetime Loan Taken, Lifetime Loan Repaid [Source: 13].
+• Active Loan Card: Show EMI Amount, Next Due Date, and Missed EMI Count [Source: 13, 27].
+• Pay Now Button:
+    ◦ Opens UPI Intent (GPay/PhonePe).
+    ◦ No Screenshot Upload: User simply confirms "Yes, I paid" after returning to the app.
+    ◦ Status goes to 'Pending' in Firestore. It only becomes 'Success' when Admin approves it [Source: 13, 27].
+• EMI Logic:
+    ◦ Full Pay Toggle: A switch to pay the full outstanding amount (Principal + Interest till date) instead of just one EMI [Source: 14, 28].
+    ◦ Grace Period: Payment button active for Due Date + 2 Days. Post that, a fine applies [Source: 15].
+B. Admin Panel (The Brain of the App)
+• Card 1: Approvals: List of 'Pending' payments. Clicking 'Approve' adds money to the Main Group Fund and updates the user's ledger [Source: 18, 29].
+• Card 2: Loan Issuance Engine:
+    ◦ Medical Toggle: If ON, the loan amount is deducted from the 20% Medical Reserve, NOT the Main Fund [Source: 12, 30].
+    ◦ Member Type:
+        ▪ Existing Member: Interest 1% to 3% based on tenure [Source: 7].
+        ▪ Non-Member: Requires Name, Phone, and a Guarantor (dropdown of existing members). Interest 3%-4% [Source: 8, 20].
+    ◦ EMI Type: Standard (Principal+Interest) OR Interest-Only (pay interest every 30/60 days) [Source: 20, 30].
+• Card 3: Add Member (Auto-Calculation Logic):
+    ◦ When adding a new member mid-year (e.g., June 2026), the joining fee is Auto-Calculated:
+    ◦ Formula = (Months Passed * ₹500) + (Months Passed * ₹150 Fine) [Source: 7, 22].
+    ◦ Admin cannot edit this amount; it ensures fairness.
+C. History Tab (Transparency)
+• A "Facebook-style" timeline showing all Money IN and Money OUT events [Source: 32].
+• Color Code: Green for Deposits, Red for Loans/Expenses.
+• Search: Search by name or transaction type [Source: 18, 32].
+
+--------------------------------------------------------------------------------
+5. Financial Rules (The Database Logic)
+• Monthly Contribution: ₹500/month mandatory [Source: 5].
+• Late Fines:
+    ◦ 1st-4th: ₹0
+    ◦ 5th-10th: ₹50
+    ◦ 11th-20th: ₹100
+    ◦ 21st-End: ₹150 [Source: 6].
+• Medical Reserve Fund: Strictly 20% of the Total Collection is kept aside for Medical Emergencies. This is a separate field in the database (medicalReserve) [Source: 11, 12].
+• Loan Fines: ₹50 per missed EMI month. If unpaid, the fine increases and adds to the principal [Source: 9, 15, 16].
+
+--------------------------------------------------------------------------------
+6. Technical Requirements
+• Platform: Flutter (Android).
+• Backend: Firebase Firestore & Auth.
+• Database Structure:
+    ◦ users (Profile + Personal Stats)
+    ◦ global_stats (Total Fund, Medical Reserve)
+    ◦ loans (Active Loan Calculations)
+    ◦ transactions (Pending Approvals Queue)
+    ◦ activity_log (History Timeline)
